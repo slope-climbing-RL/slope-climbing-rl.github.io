@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Emergent Slope-Climbing Behaviors through Terramechanics-Aware Reinforcement Learning</title>
+<meta name="description" content="Terramechanics-aware reinforcement learning: with a simple terramechanics layer for GPU-parallel RL, rover policies trained under lunar gravity choose their path by slope, and switchbacks emerge on the 15° and 25° slopes.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Emergent Slope-Climbing Behaviors through Terramechanics-Aware Reinforcement Learning">
+<meta property="og:description" content="Terramechanics-aware reinforcement learning: with a simple terramechanics layer for GPU-parallel RL, rover policies trained under lunar gravity choose their path by slope, and switchbacks emerge on the 15° and 25° slopes.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2315171b'/%3E%3Cpath d='M6 24 12 12l4 7 4-11 6 16' fill='none' stroke='%23f08a4b' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="static/css/style.css">
+<noscript><style>.panel[hidden]{display:block!important}.panel{margin-bottom:38px}.tabs{display:none}</style></noscript>
+<meta property="og:image" content="static/images/og.jpg">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="banner">Draft preview, not public.</div>
+<header class="hero"><div class="wrap">
+<div class="eyebrow">Anonymous submission, under review</div>
+<h1 class="title">Emergent <span class="nb">Slope-Climbing</span> Behaviors</h1>
+<p class="subtitle">through <span class="nb">Terramechanics-Aware</span> Reinforcement Learning</p>
+<ul class="authors"><li>Anonymous Authors</li></ul>
+<ul class="links"><li><span class="btn" aria-disabled="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm7 1.8V8h4.2L13 3.8zM8 12v1.6h8V12H8zm0 3.4V17h8v-1.6H8z"/></svg>Paper <span class="soon">(coming soon)</span></span></li><li><span class="btn" aria-disabled="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm6 3.6v6.8l5.8-3.4L10 8.6z"/></svg>Video <span class="soon">(coming soon)</span></span></li><li><span class="btn" aria-disabled="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 6.4 3 12l5.6 5.6 1.5-1.5L6 12l4.1-4.1-1.5-1.5zm6.8 0-1.5 1.5L18 12l-4.1 4.1 1.5 1.5L21 12l-5.6-5.6z"/></svg>Code <span class="soon">(coming soon)</span></span></li></ul>
+</div></header>
+<main id="main">
+<section class="tight" id="teaser"><div class="wrap"><figure><div class="stage vwrap"><video muted loop playsinline controls preload="metadata" data-autoplay width="1280" height="720" poster="static/videos/slope15_top.jpg" src="static/videos/slope15_top.mp4" aria-label="Top view of a rover climbing a 15 degree slope in switchbacks; the driven path is drawn behind it."></video><span class="speed">4× speed</span></div><figcaption class="center">With no path or slip term in the reward, a policy trained with the terramechanics layer in 512 parallel lunar-gravity environments climbs a 15° soft slope in switchbacks. The line is the driven path; rings mark heading reversals.</figcaption></figure></div></section>
+<section id="numbers"><div class="wrap center"><div class="stats big"><div class="stat"><div class="v">512</div><div class="l">parallel environments under lunar gravity, 1.62 m/s²</div></div><div class="stat"><div class="v">37–136<small>×</small></div><div class="l">real time in training with the layer (simulated time summed over the 512 environments, median per slope)</div></div><div class="stat"><div class="v">128/128</div><div class="l">held-out episodes reached the goal, on each of five slopes</div></div><div class="stat"><div class="v">6</div><div class="l">heading reversals by the adopted policies at 15° and 25°, with no path or slip term in the reward</div></div></div></div></section>
+<section id="abstract" class="alt"><div class="wrap wrap-text"><h2 class="center">Abstract</h2><div class="abstract"><p>On soft, steep slopes, a wheeled robot&#x27;s path determines how much it slips: heading across the slope lowers the effective slope its wheels climb but lengthens the path. Path and traction are therefore coupled, yet conventional planners and controllers separate the two. Reinforcement learning (RL) could learn both, but state-of-the-art parallel (GPU) simulators treat the ground as rigid, because soil models that capture slip are too costly at that scale. We develop a simple terramechanics layer that extends empirical slip and sinkage laws to each wheel&#x27;s oblique and turning motion. Its closed-form, per-wheel design enables GPU-parallel RL on soft soil. With no path or slip term in the reward, policies trained under lunar gravity climb straight on gentle slopes, while switchbacks emerge on the 15° and 25° slopes; rigid-ground training with the same reward produces no switchbacks. At 15°, for example, the switchback reduces slip by lowering the effective slope to about 11°, near the slip law&#x27;s optimum, and reaches the top 1.38 times faster than a straight climb. We confirm the layer&#x27;s sinkage trend and the switchback&#x27;s reversals in a higher-fidelity continuum soil simulation.</p></div></div></section>
+<section id="method"><div class="wrap"><h2 class="">A terramechanics layer inside every environment</h2>
+<p class="lede ">Parallel GPU simulators treat the ground as rigid, because soil models that capture slip are too costly at that scale. The layer adds slip, sinkage and soil forces per wheel, on top of the simulator&#x27;s rigid contact.</p><div class="split"><figure><div class="stage pad"><img src="static/images/method.png" alt="Diagram. Top: a wheel on a slope with its imposed slip, its sinkage and the applied soil forces. Bottom: one physics step of the per-wheel layer, from the policy command and the filtered load and slope, through the empirical slip and sinkage laws, to the rigid-body solver." width="2034" height="1584" loading="lazy"></div><figcaption>Top: wheel–soil interaction on the slope. Bottom: one physics step of the layer, run for every wheel every 5 ms. From each wheel&#x27;s rim speed, slope, load and sideslip, the layer computes slip and sinkage, slows the drive, and applies a traction-loss force, a compaction resistance and a lateral soil force.</figcaption></figure><div class="points"><div class="point"><div class="num">01</div><h3>Slip and sinkage per wheel</h3><p>Empirical slip and sinkage laws from prior work, fitted to straight driving runs, single-wheel testbed data and discrete element method simulations, are evaluated for each wheel along its rolling direction, and the layer applies the resulting soil forces. The compaction-resistance gain and the lateral-force term are set from MPM simulations.</p></div>
+<div class="point"><div class="num">02</div><h3>GPU-parallel, lunar gravity</h3><p>512 environments run under 1.62 m/s² and train at 37–136 times real time with the layer active (simulated time summed over the environments).</p></div>
+<div class="point"><div class="num">03</div><h3>One reward, no prescribed path</h3><p>One PPO policy is trained per slope with the same reward. Its only dense term rewards velocity toward the center of the summit line; sparse terms reward crossing the line, arriving inside the goal corridor and facing forward on arrival, and penalize tilt and heading failures, with small regularizing penalties. No term covers the path, the attack angle or slip, so the path in between is left to the policy.</p></div></div></div></div></section>
+<section id="results" class="alt"><div class="wrap" data-tabs><h2 class="">The policy chooses its path by slope</h2>
+<p class="lede ">Each clip is the nominal run of the policy adopted for that slope: one deterministic episode from the fixed start pose. Left: top view with the driven path. Right: follow camera.</p><div class="tabs" role="tablist" aria-label="Slope angle"><button class="tab" role="tab" id="tab-slope-5" data-key="slope-5" aria-controls="panel-slope-5" aria-selected="false" tabindex="-1">5°</button><button class="tab" role="tab" id="tab-slope-10" data-key="slope-10" aria-controls="panel-slope-10" aria-selected="false" tabindex="-1">10°</button><button class="tab" role="tab" id="tab-slope-15" data-key="slope-15" aria-controls="panel-slope-15" aria-selected="true" tabindex="0">15°</button><button class="tab" role="tab" id="tab-slope-20" data-key="slope-20" aria-controls="panel-slope-20" aria-selected="false" tabindex="-1">20°</button><button class="tab" role="tab" id="tab-slope-25" data-key="slope-25" aria-controls="panel-slope-25" aria-selected="false" tabindex="-1">25°</button></div><div class="panel" role="tabpanel" id="panel-slope-5" aria-labelledby="tab-slope-5" hidden><div class="panel-head"><div class="what"><h3>Straight climb</h3><p>On a gentle slope the policy drives straight up.</p></div><div class="stats"><div class="stat"><div class="v">128/128</div><div class="l">held-out episodes at goal</div></div><div class="stat"><div class="v">32.0<small>s</small></div><div class="l">mean time to summit line</div></div><div class="stat"><div class="v">0</div><div class="l">heading reversals</div></div></div></div><div class="grid two">
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1280" height="720" poster="static/videos/slope05_top.jpg" src="static/videos/slope05_top.mp4" aria-label="Top view at 5 degrees: a straight path up the slope."></video><span class="speed">2× speed</span></div>
+<div class="tag"><b>Top view</b><span>driven path</span></div>
+</div>
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1084" height="610" poster="static/videos/slope05_follow.jpg" src="static/videos/slope05_follow.mp4" aria-label="Follow camera at 5 degrees."></video><span class="speed">2× speed</span></div>
+<div class="tag"><b>Follow camera</b><span></span></div>
+</div>
+</div></div>
+<div class="panel" role="tabpanel" id="panel-slope-10" aria-labelledby="tab-slope-10" hidden><div class="panel-head"><div class="what"><h3>Straight climb</h3><p>The policy still drives straight up.</p></div><div class="stats"><div class="stat"><div class="v">128/128</div><div class="l">held-out episodes at goal</div></div><div class="stat"><div class="v">52.3<small>s</small></div><div class="l">mean time to summit line</div></div><div class="stat"><div class="v">0</div><div class="l">heading reversals</div></div></div></div><div class="grid two">
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1280" height="720" poster="static/videos/slope10_top.jpg" src="static/videos/slope10_top.mp4" aria-label="Top view at 10 degrees: a nearly straight path up the slope."></video><span class="speed">2× speed</span></div>
+<div class="tag"><b>Top view</b><span>driven path</span></div>
+</div>
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1084" height="610" poster="static/videos/slope10_follow.jpg" src="static/videos/slope10_follow.mp4" aria-label="Follow camera at 10 degrees."></video><span class="speed">2× speed</span></div>
+<div class="tag"><b>Follow camera</b><span></span></div>
+</div>
+</div></div>
+<div class="panel" role="tabpanel" id="panel-slope-15" aria-labelledby="tab-slope-15"><div class="panel-head"><div class="what"><h3>Switchback</h3><p>The policy turns across the slope and reverses its heading six times on the way up.</p></div><div class="stats"><div class="stat"><div class="v">128/128</div><div class="l">held-out episodes at goal</div></div><div class="stat"><div class="v">101.9<small>s</small></div><div class="l">mean time to summit line</div></div><div class="stat"><div class="v">6</div><div class="l">heading reversals</div></div></div></div><div class="grid two">
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1280" height="720" poster="static/videos/slope15_top.jpg" src="static/videos/slope15_top.mp4" aria-label="Top view at 15 degrees: a zigzag path with six marked reversals."></video><span class="speed">4× speed</span></div>
+<div class="tag"><b>Top view</b><span>driven path, rings = reversals</span></div>
+</div>
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1084" height="610" poster="static/videos/slope15_follow.jpg" src="static/videos/slope15_follow.mp4" aria-label="Follow camera at 15 degrees: the rover drives obliquely across the slope and turns back."></video><span class="speed">4× speed</span></div>
+<div class="tag"><b>Follow camera</b><span></span></div>
+</div>
+</div></div>
+<div class="panel" role="tabpanel" id="panel-slope-20" aria-labelledby="tab-slope-20" hidden><div class="panel-head"><div class="what"><h3>One oblique segment</h3><p>The rover drives one oblique segment, up to 48.7° off upslope, and then climbs straight without reversing.</p></div><div class="stats"><div class="stat"><div class="v">128/128</div><div class="l">held-out episodes at goal</div></div><div class="stat"><div class="v">445<small>s</small></div><div class="l">mean time to summit line</div></div><div class="stat"><div class="v">0</div><div class="l">heading reversals</div></div></div></div><div class="grid two">
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1280" height="720" poster="static/videos/slope20_top.jpg" src="static/videos/slope20_top.mp4" aria-label="Top view at 20 degrees: one oblique segment, then a straight climb."></video><span class="speed">12× speed</span></div>
+<div class="tag"><b>Top view</b><span>driven path</span></div>
+</div>
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1084" height="610" poster="static/videos/slope20_follow.jpg" src="static/videos/slope20_follow.mp4" aria-label="Follow camera at 20 degrees."></video><span class="speed">12× speed</span></div>
+<div class="tag"><b>Follow camera</b><span></span></div>
+</div>
+</div></div>
+<div class="panel" role="tabpanel" id="panel-slope-25" aria-labelledby="tab-slope-25" hidden><div class="panel-head"><div class="what"><h3>Switchback</h3><p>On the steepest slope the policy again reverses its heading six times, on wider segments than at 15°.</p></div><div class="stats"><div class="stat"><div class="v">128/128</div><div class="l">held-out episodes at goal</div></div><div class="stat"><div class="v">414<small>s</small></div><div class="l">mean time to summit line</div></div><div class="stat"><div class="v">6</div><div class="l">heading reversals</div></div></div></div><div class="grid two">
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1280" height="720" poster="static/videos/slope25_top.jpg" src="static/videos/slope25_top.mp4" aria-label="Top view at 25 degrees: a wide zigzag path with six marked reversals."></video><span class="speed">12× speed</span></div>
+<div class="tag"><b>Top view</b><span>driven path, rings = reversals</span></div>
+</div>
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1084" height="610" poster="static/videos/slope25_follow.jpg" src="static/videos/slope25_follow.mp4" aria-label="Follow camera at 25 degrees."></video><span class="speed">12× speed</span></div>
+<div class="tag"><b>Follow camera</b><span></span></div>
+</div>
+</div></div><p class="fine" style="margin-top:18px">Goal: the rover reached the goal corridor in 128 of 128 held-out randomized episodes (95% CI 97.2–100%). Time: mean over those episodes. Reversals: counted in the nominal run shown here; a reversal is counted when the heading changes sign between two consecutive excursions that each peak above 30°. Clips show the policy adopted for each slope; whether training finds a switchback depends on the seed.</p></div></section>
+<section id="paths"><div class="wrap center"><h2 class="center">Five slopes, three kinds of path</h2><div class="narrow"><figure><div class="stage pad"><img src="static/images/paths_all_slopes.png" alt="Plot of lateral position against upslope position for the five slopes. The 5 and 10 degree paths are nearly straight, the 20 degree path has one oblique segment, and the 15 and 25 degree paths zigzag." width="2040" height="1054" loading="lazy"></div><figcaption>Paths of the adopted policies in the nominal run, from the start to the summit line. Circles mark heading reversals. The shaded band is the goal corridor, |y| &lt; 3 m.</figcaption></figure></div></div></section>
+<section id="comparison" class="alt"><div class="wrap"><h2 class="">Comparison on the 15° slope</h2>
+<p class="lede ">The same slope with a scripted straight-line controller and with the policy trained on rigid ground. All clips play at the same speed.</p><div class="grid two">
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1084" height="610" poster="static/videos/slope15_follow.jpg" src="static/videos/slope15_follow.mp4" aria-label="The soft-soil policy climbing in switchbacks."></video><span class="speed">4× speed</span></div>
+<div class="tag"><b>Soft-soil policy</b><span>trained with the layer</span></div>
+<p>Climbs in switchbacks.</p>
+</div>
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1084" height="610" poster="static/videos/cmp15_straight.jpg" src="static/videos/cmp15_straight.mp4" aria-label="A straight-line controller climbing the same slope."></video><span class="speed">4× speed</span></div>
+<div class="tag"><b>Straight-line controller</b><span>same soft-soil simulation</span></div>
+<p>Drives straight up the slope.</p>
+</div>
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1084" height="610" poster="static/videos/cmp15_rigid_on_rigid.jpg" src="static/videos/cmp15_rigid_on_rigid.mp4" aria-label="A policy trained on rigid ground climbing straight on rigid ground."></video><span class="speed">4× speed</span></div>
+<div class="tag"><b>Rigid-ground policy</b><span>on rigid ground</span></div>
+<p>Trained with the same reward but without the layer, the adopted policy climbs straight.</p>
+</div>
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1084" height="610" poster="static/videos/cmp15_rigid_on_soft.jpg" src="static/videos/cmp15_rigid_on_soft.mp4" aria-label="The rigid-ground policy climbing slowly in the soft-soil simulation."></video><span class="speed">4× speed</span></div>
+<div class="tag"><b>Rigid-ground policy</b><span>moved to the soft-soil simulation</span></div>
+<p>The same policy in the soft-soil simulation, without retraining.</p>
+</div>
+</div><div style="margin-top:26px"><div class="tablewrap"><table><caption>Mean time to the summit line on the 15° slope in the soft-soil simulation, over randomized starts (128 held-out episodes for the soft-soil policy, 64 episodes for each other controller).</caption><thead><tr><th scope="col">Controller</th><th scope="col">Episodes</th><th scope="col">Mean time</th></tr></thead><tbody><tr><th scope="row">Soft-soil policy (trained with the layer)</th><td class="hl">128</td><td class="hl">101.9 s</td></tr><tr><th scope="row">Rigid-ground policy, moved to the soft-soil simulation</th><td class="">64</td><td class="">146.8 s</td></tr><tr><th scope="row">Straight-line controller</th><td class="">64</td><td class="">140.7 s</td></tr><tr><th scope="row">PID controller</th><td class="">64</td><td class="">140.9 s</td></tr><tr><th scope="row">15° attack-angle controller</th><td class="">64</td><td class="">134.9 s</td></tr><tr><th scope="row">Scripted switchback, tuned for this slope</th><td class="">64</td><td class="">95.1 s</td></tr></tbody></table></div></div><p class="fine" style="margin-top:16px">With the soft-soil policy the rover reaches the summit line 1.38 times faster than with the straight-line and PID controllers and 1.32 times faster than with the 15° attack-angle controller, which ends outside the goal corridor. A scripted switchback tuned for this slope is faster than the soft-soil policy.</p></div></section>
+<section id="mpm"><div class="wrap"><h2 class="">Check in a higher-fidelity continuum soil simulation</h2>
+<p class="lede ">A continuum soil simulation based on the material point method (MPM) tests the layer and the learned commands. The slip and sinkage laws were fitted without MPM, so MPM tests them independently; the compaction-resistance gain and the lateral-force term were set from MPM, so for them the comparison is only a consistency check.</p><div class="grid two">
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1280" height="720" poster="static/videos/mpm_replay.jpg" src="static/videos/mpm_replay.mp4" aria-label="A four-wheel rover model turning on a bed of simulated granular soil."></video></div>
+<div class="tag"><b>Open-loop replay on MPM soil</b><span>four wheels, 12 mm grid</span></div>
+<p>The realized wheel speeds and steering targets of the 15° switchback are played back on MPM soil without feedback. In 13 runs covering five of the six reversals, the rover reversed its heading every time.</p>
+</div>
+<div class="clip">
+<div class="stage vwrap"><video muted loop playsinline controls preload="none" data-autoplay width="1280" height="720" poster="static/videos/mpm_wheel.jpg" src="static/videos/mpm_wheel.mp4" aria-label="Close-up of a grousered wheel digging into simulated granular soil."></video></div>
+<div class="tag"><b>Single wheel on MPM soil</b><span>lunar gravity, slip 0.30</span></div>
+<p>A grousered wheel driven at a forced slip ratio. In these runs sinkage increases with slip, as the layer assumes.</p>
+</div>
+</div><p class="fine" style="margin-top:16px">In the MPM replay, a reversal is the first sign change of the heading after it exceeds 5°. In straight-drive MPM tests the layer predicts more slip than MPM from 10° upward; the paper gives the numbers.</p></div></section>
+</main>
+<footer><div class="wrap">
+<p>All clips are simulation. Playback speed is marked on each policy clip.</p>
+</div></footer>
+<script src="static/js/main.js" defer></script>
+</body></html>
